@@ -9,6 +9,7 @@ function Plugin () {
     const data = { greeting: 'Hello, World!' }
     emit('SUBMIT', data)
   }
+    
   return (
     <main>
     <h1 class="text-3xl font-bold underline">
