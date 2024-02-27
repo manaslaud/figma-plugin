@@ -1,21 +1,14 @@
 import {showUI } from '@create-figma-plugin/utilities'
 import {on,emit} from '@create-figma-plugin/utilities'
-import { useState } from 'preact/hooks'
 export default function () {
-  const [lastSelectedLeftNode,setLastSelectedLeftNode]=useState<SceneNode>()
-  const [lastSelectedRightNode,setLastSelectedRightNode]=useState<SceneNode>()
+
 
   function handleSubmit (data:any) {
-  
     const leftNode:SceneNode=figma.currentPage.selection[0]
     const rightNode:SceneNode=figma.currentPage.selection[1]
-    setLastSelectedLeftNode(leftNode)
-    setLastSelectedRightNode(rightNode)
     drawArrowBetweenNodes(leftNode,rightNode)
-    
-   
   }
-  function drawArrowBetweenNodes(leftNode:SceneNode,rightNode:SceneNode){
+  function drawArrowBetweenNodes(leftNode:SceneNode,rightNode:SceneNode,isResizing:number=0){
     const startPoint = {
       x: leftNode.x + leftNode.width, 
       y: leftNode.y + leftNode.height / 2 
@@ -37,17 +30,22 @@ export default function () {
     figma.currentPage.appendChild(arrowLine);
   }
     
-  function handleArrowDeletion(changedNodeId:string|undefined =''){  
-    const toRemoveNode=detectAssociatedArrow(changedNodeId)
-    console.log(toRemoveNode)
-    toRemoveNode?.remove()
-    
-    
+  function handleArrowUpdating(changedNodeId:string|undefined =''){  
+    const toUpdateArrow:SceneNode |null =detectAssociatedArrow(changedNodeId)
+    const nodes:SceneNode[]|null=figma.currentPage.findAll((n:SceneNode)=>{
+      if(toUpdateArrow)
+      return toUpdateArrow.name.includes(n.id)
+      return false
+    })
+    toUpdateArrow?.remove()
+    drawArrowBetweenNodes(nodes[0],nodes[1])
+    console.log(nodes)
   }
   function detectAssociatedArrow(changedNodeId:string|undefined =''){
     const node:SceneNode|null = figma.currentPage.findOne(n=>n.name.includes(changedNodeId))
       return node
   }
+
 
   on('SUBMIT', handleSubmit)
   figma.on("documentchange", (event) => {
@@ -57,7 +55,7 @@ export default function () {
         case "PROPERTY_CHANGE":
           for (const prop of change.properties) {
             if(prop==='x' || prop==='y'){
-              handleArrowDeletion(change.id)
+              handleArrowUpdating(change.id)
             }
             
            
@@ -67,7 +65,6 @@ export default function () {
         }
       }
     });
-
   showUI({
     height: 500,
     width: 500
