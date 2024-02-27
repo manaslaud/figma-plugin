@@ -1,12 +1,21 @@
 import { render } from '@create-figma-plugin/ui'
 import { h } from 'preact'
+import { Button } from '@create-figma-plugin/ui'
+import { emit } from '@create-figma-plugin/utilities'
 import '!./output.css'
 
 function Plugin () {
+  function handleClick () {
+    const data = { greeting: 'Hello, World!' }
+    emit('SUBMIT', data)
+  }
   return (
+    <main>
     <h1 class="text-3xl font-bold underline">
-      Hello, World!
+      Hello, World manas here
     </h1>
+    <Button onClick={handleClick}>Submit</Button>
+    </main>
   )
 }
 
