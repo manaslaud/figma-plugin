@@ -32,6 +32,8 @@ export default function () {
     
   function handleArrowUpdating(changedNodeId:string|undefined =''){  
     const toUpdateArrow:SceneNode |null =detectAssociatedArrow(changedNodeId)
+    if(toUpdateArrow===null)
+    return
     const nodes:SceneNode[]|null=figma.currentPage.findAll((n:SceneNode)=>{
       if(toUpdateArrow)
       return toUpdateArrow.name.includes(n.id)
