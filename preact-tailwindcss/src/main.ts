@@ -1,5 +1,5 @@
 import {showUI } from '@create-figma-plugin/utilities'
-import {on,emit} from '@create-figma-plugin/utilities'
+import {on} from '@create-figma-plugin/utilities'
 export default function () {
 
 
@@ -8,7 +8,7 @@ export default function () {
     const rightNode:SceneNode=figma.currentPage.selection[1]
     drawArrowBetweenNodes(leftNode,rightNode)
   }
-  function drawArrowBetweenNodes(leftNode:SceneNode,rightNode:SceneNode,isResizing:number=0){
+  function drawArrowBetweenNodes(leftNode:SceneNode,rightNode:SceneNode){
     const startPoint = {
       x: leftNode.x + leftNode.width, 
       y: leftNode.y + leftNode.height / 2 
@@ -41,7 +41,7 @@ export default function () {
     })
     toUpdateArrow?.remove()
     drawArrowBetweenNodes(nodes[0],nodes[1])
-    console.log(nodes)
+    // console.log(nodes)
   }
   function detectAssociatedArrow(changedNodeId:string|undefined =''){
     const node:SceneNode|null = figma.currentPage.findOne(n=>n.name.includes(changedNodeId))
@@ -52,18 +52,15 @@ export default function () {
   on('SUBMIT', handleSubmit)
   figma.on("documentchange", (event) => {
     for (const change of event.documentChanges) {
-      console.log(change)
+      // console.log(change)
       switch (change.type) {
         case "PROPERTY_CHANGE":
           for (const prop of change.properties) {
             if(prop==='x' || prop==='y'){
               handleArrowUpdating(change.id)
             }
-            
-           
           }
-          break;
-    
+          break; 
         }
       }
     });
