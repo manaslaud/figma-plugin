@@ -6,8 +6,7 @@ import '!./output.css'
 
 function Plugin () {
   function handleClick () {
-    const data = { greeting: 'Hello, World!' }
-    emit('SUBMIT', data)
+    emit('SUBMIT')
   }
     
   return (

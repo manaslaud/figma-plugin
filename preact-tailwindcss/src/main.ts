@@ -4,6 +4,9 @@ export default function () {
 
 
   function handleSubmit (data:any) {
+    if(figma.currentPage.selection.length<2)
+      return
+    
     const leftNode:SceneNode=figma.currentPage.selection[0]
     const rightNode:SceneNode=figma.currentPage.selection[1]
     drawArrowBetweenNodes(leftNode,rightNode)
