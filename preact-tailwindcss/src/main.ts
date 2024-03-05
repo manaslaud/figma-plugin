@@ -1,14 +1,22 @@
 import {showUI } from '@create-figma-plugin/utilities'
+// import { useEffect } from 'preact/hooks'
 import {on} from '@create-figma-plugin/utilities'
 export default function () {
-
-
+  // const toCheckForNodes:SceneNode[] | null=figma.currentPage.findAll((node:SceneNode)=>{
+  //   if(node.getPluginData('checkUpdating')==='true')
+  //   return true
+  // return false
+  // })
+  // toCheckForNodes.forEach((node:SceneNode)=>{
+  // })
   function handleSubmit (data:any) {
     if(figma.currentPage.selection.length<2)
       return
     
     const leftNode:SceneNode=figma.currentPage.selection[0]
     const rightNode:SceneNode=figma.currentPage.selection[1]
+    leftNode.setPluginData('checkUpdating','true')
+    rightNode.setPluginData('checkUpdating','true')
     drawArrowBetweenNodes(leftNode,rightNode)
   }
   function drawArrowBetweenNodes(leftNode:SceneNode,rightNode:SceneNode){
@@ -34,9 +42,10 @@ export default function () {
   }
     
   function handleArrowUpdating(changedNodeId:string|undefined =''){  
-    const toUpdateArrow:SceneNode |null =detectAssociatedArrow(changedNodeId)
-    if(toUpdateArrow===null)
+    const toUpdateArrows:SceneNode[] |null =detectAssociatedArrow(changedNodeId)
+    if(toUpdateArrows===null)
     return
+  for( const toUpdateArrow of toUpdateArrows){
     const nodes:SceneNode[]|null=figma.currentPage.findAll((n:SceneNode)=>{
       if(toUpdateArrow)
       return toUpdateArrow.name.includes(n.id)
@@ -44,29 +53,28 @@ export default function () {
     })
     toUpdateArrow?.remove()
     drawArrowBetweenNodes(nodes[0],nodes[1])
-    // console.log(nodes)
+  }
+    
   }
   function detectAssociatedArrow(changedNodeId:string|undefined =''){
-    const node:SceneNode|null = figma.currentPage.findOne(n=>n.name.includes(changedNodeId))
+    const node:SceneNode[]|null = figma.currentPage.findAll(n=>n.name.includes(changedNodeId))
       return node
   }
-
+  // function getAssociatedNode(nodeId:string |undefined){
+  //   return figma.currentPage.findOne((n:SceneNode)=>n.id===(nodeId))
+  // }
 
   on('SUBMIT', handleSubmit)
-  figma.on("documentchange", (event) => {
+  figma.on("documentchange", (event:DocumentChangeEvent|any) => {
+    console.log(event)
     for (const change of event.documentChanges) {
-      // console.log(change)
-      switch (change.type) {
-        case "PROPERTY_CHANGE":
-          for (const prop of change.properties) {
-            if(prop==='x' || prop==='y'){
-              handleArrowUpdating(change.id)
-            }
-          }
-          break; 
-        }
+      if(change.node.getPluginData('checkUpdating')==='true' && change.type==='PROPERTY_CHANGE' && (change.properties.includes('x')|| change.properties.includes('y')|| change.properties.includes('relativeTransform'))){
+                handleArrowUpdating(change.id)  
+      }    
       }
     });
+
+ 
   showUI({
     height: 500,
     width: 500
