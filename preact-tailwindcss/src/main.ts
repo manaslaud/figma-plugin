@@ -68,7 +68,9 @@ export default function () {
   figma.on("documentchange", (event:DocumentChangeEvent|any) => {
     console.log(event)
     for (const change of event.documentChanges) {
-      if(change.node.getPluginData('checkUpdating')==='true' && change.type==='PROPERTY_CHANGE' && (change.properties.includes('x')|| change.properties.includes('y')|| change.properties.includes('relativeTransform'))){
+      if(  change.node.getPluginData('checkUpdating') === 'true' &&
+      change.type === 'PROPERTY_CHANGE' &&
+      ['x', 'y', 'relativeTransform'].some(prop => change.properties.includes(prop))){
                 handleArrowUpdating(change.id)  
       }    
       }
